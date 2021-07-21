@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.autograd import Variable
+from torch.autograd import Variable 
 
 import math, random, sys
 from optparse import OptionParser
@@ -9,7 +9,11 @@ from collections import deque
 import rdkit
 import rdkit.Chem as Chem
 
-from jtnn import *
+#export PTHONPATH="/Users/nataliemaus/Documents/GitHub/JTNN_code"
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, '/Users/nataliemaus/Documents/GitHub/JTNN_code')
+sys.path.insert(2, '/Users/nataliemaus/Documents/GitHub/JTNN_code/jtnn')
+from jtnn import *  
 
 lg = rdkit.RDLogger.logger() 
 lg.setLevel(rdkit.RDLogger.CRITICAL)
@@ -23,7 +27,7 @@ parser.add_option("-l", "--latent", dest="latent_size", default=56)
 parser.add_option("-d", "--depth", dest="depth", default=3)
 parser.add_option("-e", "--stereo", dest="stereo", default=1)
 opts,args = parser.parse_args()
-   
+
 vocab = [x.strip("\r\n ") for x in open(opts.vocab_path)] 
 vocab = Vocab(vocab)
 
@@ -52,7 +56,7 @@ for smiles in data:
     if dec_smiles == smiles3D:
         acc += 1
     tot += 1
-    print acc / tot
+    print( acc / tot)
     """
     dec_smiles = model.recon_eval(smiles3D)
     tot += len(dec_smiles)

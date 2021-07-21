@@ -12,7 +12,7 @@ import sascorer
 import numpy as np  
 from jtnn import *
 
-lg = rdkit.RDLogger.logger() 
+lg = rdkit.RDLogger.logger()  
 lg.setLevel(rdkit.RDLogger.CRITICAL)
 
 parser = OptionParser()
@@ -40,7 +40,7 @@ depth = int(opts.depth)
 
 model = JTNNVAE(vocab, hidden_size, latent_size, depth)
 model.load_state_dict(torch.load(opts.model_path))
-model = model.cuda()
+model = model.cuda() 
 
 smiles_rdkit = []
 for i in xrange(len(smiles)):

@@ -71,7 +71,7 @@ class JTNNVAE(nn.Module):
 
         tree_mess, tree_vec, mol_vec = self.encode(mol_batch)
 
-        tree_mean = self.T_mean(tree_vec)
+        tree_mean = self.T_mean(tree_vec) 
         tree_log_var = -torch.abs(self.T_var(tree_vec)) #Following Mueller et al.
         mol_mean = self.G_mean(mol_vec)
         mol_log_var = -torch.abs(self.G_var(mol_vec)) #Following Mueller et al.
