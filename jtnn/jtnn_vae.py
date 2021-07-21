@@ -27,20 +27,20 @@ class JTNNVAE(nn.Module):
     def __init__(self, vocab, hidden_size, latent_size, depth, stereo=True):
         super(JTNNVAE, self).__init__()
         self.vocab = vocab
-        self.hidden_size = hidden_size
-        self.latent_size = latent_size
-        self.depth = depth
+        self.hidden_size = int(hidden_size)
+        self.latent_size = int(latent_size)
+        self.depth = int(depth)
 
         self.embedding = nn.Embedding(vocab.size(), hidden_size)
         self.jtnn = JTNNEncoder(vocab, hidden_size, self.embedding)
         self.jtmpn = JTMPN(hidden_size, depth)
         self.mpn = MPN(hidden_size, depth)
-        self.decoder = JTNNDecoder(vocab, hidden_size, latent_size / 2, self.embedding)
+        self.decoder = JTNNDecoder(vocab, hidden_size, latent_size // 2, self.embedding)
 
-        self.T_mean = nn.Linear(hidden_size, latent_size / 2)
-        self.T_var = nn.Linear(hidden_size, latent_size / 2)
-        self.G_mean = nn.Linear(hidden_size, latent_size / 2)
-        self.G_var = nn.Linear(hidden_size, latent_size / 2)
+        self.T_mean = nn.Linear(hidden_size, latent_size // 2)
+        self.T_var = nn.Linear(hidden_size, latent_size // 2)
+        self.G_mean = nn.Linear(hidden_size, latent_size // 2)
+        self.G_var = nn.Linear(hidden_size, latent_size // 2)
         
         self.assm_loss = nn.CrossEntropyLoss(size_average=False)
         self.use_stereo = stereo
@@ -182,10 +182,10 @@ class JTNNVAE(nn.Module):
         mol_mean = self.G_mean(mol_vec)
         mol_log_var = -torch.abs(self.G_var(mol_vec)) #Following Mueller et al.
 
-        epsilon = create_var(torch.randn(1, self.latent_size / 2), False)
-        tree_vec = tree_mean + torch.exp(tree_log_var / 2) * epsilon
-        epsilon = create_var(torch.randn(1, self.latent_size / 2), False)
-        mol_vec = mol_mean + torch.exp(mol_log_var / 2) * epsilon
+        epsilon = create_var(torch.randn(1, self.latent_size // 2), False)
+        tree_vec = tree_mean + torch.exp(tree_log_var // 2) * epsilon
+        epsilon = create_var(torch.randn(1, self.latent_size // 2), False)
+        mol_vec = mol_mean + torch.exp(mol_log_var // 2) * epsilon
         return self.decode(tree_vec, mol_vec, prob_decode)
 
     def recon_eval(self, smiles):
@@ -199,12 +199,12 @@ class JTNNVAE(nn.Module):
         mol_log_var = -torch.abs(self.G_var(mol_vec)) #Following Mueller et al.
         
         all_smiles = []
-        for i in xrange(10):
+        for i in range(10):
             epsilon = create_var(torch.randn(1, self.latent_size / 2), False)
             tree_vec = tree_mean + torch.exp(tree_log_var / 2) * epsilon
             epsilon = create_var(torch.randn(1, self.latent_size / 2), False)
             mol_vec = mol_mean + torch.exp(mol_log_var / 2) * epsilon
-            for j in xrange(10):
+            for j in range(10):
                 new_smiles = self.decode(tree_vec, mol_vec, prob_decode=True)
                 all_smiles.append(new_smiles)
         return all_smiles
@@ -218,7 +218,7 @@ class JTNNVAE(nn.Module):
         tree_vec = create_var(torch.randn(1, self.latent_size / 2), False)
         mol_vec = create_var(torch.randn(1, self.latent_size / 2), False)
         all_smiles = []
-        for i in xrange(100):
+        for i in range(100):
             s = self.decode(tree_vec, mol_vec, prob_decode=True)
             all_smiles.append(s)
         return all_smiles
@@ -258,7 +258,8 @@ class JTNNVAE(nn.Module):
         stereo_vecs = self.G_mean(stereo_vecs)
         scores = nn.CosineSimilarity()(stereo_vecs, mol_vec)
         _,max_id = scores.max(dim=0)
-        return stereo_cands[max_id.data[0]]
+        #print("sjdlfaj", max_id.data)
+        return stereo_cands[max_id.data] #from data[0]
 
     def dfs_assemble(self, tree_mess, mol_vec, all_nodes, cur_mol, global_amap, fa_amap, cur_node, fa_node, prob_decode):
         fa_nid = fa_node.nid if fa_node is not None else -1
@@ -290,7 +291,7 @@ class JTNNVAE(nn.Module):
             _,cand_idx = torch.sort(scores, descending=True)
 
         backup_mol = Chem.RWMol(cur_mol)
-        for i in xrange(cand_idx.numel()):
+        for i in range(cand_idx.numel()):
             cur_mol = Chem.RWMol(backup_mol)
             pred_amap = cand_amap[cand_idx[i].item()]
             new_global_amap = copy.deepcopy(global_amap)

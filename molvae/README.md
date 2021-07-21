@@ -48,7 +48,7 @@ This script prints each line the SMILES string of each molecule. `prior_mols.txt
 
 For molecule reconstruction, run  
 ```
-pythone reconstruct.py --test ../data/zinc/test.txt --vocab ../data/zinc/vocab.txt \
+python3 reconstruct.py --test ../data/zinc/test.txt --vocab ../data/zinc/vocab.txt \
 --hidden 450 --depth 3 --latent 56 \
 --model MPNVAE-h450-L56-d3-beta0.005/model.4
 ```

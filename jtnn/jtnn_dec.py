@@ -28,6 +28,11 @@ class JTNNDecoder(nn.Module):
         self.W_h = nn.Linear(2 * hidden_size, hidden_size)
 
         #Feature Aggregate Weights
+        latent_size = int(latent_size)
+        #print("latent size", latent_size)
+        #print("hidden size", hidden_size)
+        # latent size 28.0
+        # hidden size 450
         self.W = nn.Linear(latent_size + hidden_size, hidden_size)
         self.U = nn.Linear(latent_size + 2 * hidden_size, hidden_size)
 
@@ -70,7 +75,7 @@ class JTNNDecoder(nn.Module):
         padding = create_var(torch.zeros(self.hidden_size), False)
         h = {}
 
-        for t in xrange(max_iter):
+        for t in range(max_iter):
             prop_list = []
             batch_list = []
             for i,plist in enumerate(traces):
@@ -203,7 +208,7 @@ class JTNNDecoder(nn.Module):
 
         all_nodes = [root]
         h = {}
-        for step in xrange(MAX_DECODE_LEN):
+        for step in range(MAX_DECODE_LEN):
             node_x,fa_slot = stack[-1]
             cur_h_nei = [ h[(node_y.idx,node_x.idx)] for node_y in node_x.neighbors ]
             if len(cur_h_nei) > 0:
